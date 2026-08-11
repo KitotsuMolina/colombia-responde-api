@@ -2,9 +2,9 @@ import { Type } from 'class-transformer'
 import { IsIn, IsInt, IsLatitude, IsLongitude, IsOptional, IsString, Length, Max, Min, ValidateNested } from 'class-validator'
 
 class LocationDto {
-  @IsString() @Length(2, 2) departmentCode: string
+  @IsOptional() @IsString() @Length(2, 2) departmentCode?: string
   @IsString() @Length(2, 100) departmentName: string
-  @IsString() @Length(5, 5) municipalityCode: string
+  @IsOptional() @IsString() @Length(5, 5) municipalityCode?: string
   @IsString() @Length(2, 120) municipalityName: string
   @IsOptional() @IsString() @Length(2, 160) locality?: string
 }

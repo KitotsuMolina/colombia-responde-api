@@ -16,7 +16,8 @@ export class SafetyCheckInsService {
   }
   async create(dto:CreateSafetyCheckInDto) {
     const deleteToken=randomBytes(32).toString('hex'), publicCode=`BIEN-${randomBytes(4).toString('hex').toUpperCase()}`
-    const entity=this.repository.create({ fullName:dto.fullName, location:dto.location, message:dto.message, publicCode, deleteTokenHash:hash(deleteToken), status:'self_reported', expiresAt:new Date(Date.now()+30*86400000), coordinates:dto.longitude!==undefined&&dto.latitude!==undefined?{type:'Point',coordinates:[dto.longitude,dto.latitude]}:undefined })
+    const location={ ...dto.location, departmentCode:dto.location.departmentCode??'', municipalityCode:dto.location.municipalityCode??'' }
+    const entity=this.repository.create({ fullName:dto.fullName, location, message:dto.message, publicCode, deleteTokenHash:hash(deleteToken), status:'self_reported', expiresAt:new Date(Date.now()+30*86400000), coordinates:dto.longitude!==undefined&&dto.latitude!==undefined?{type:'Point',coordinates:[dto.longitude,dto.latitude]}:undefined })
     const saved=await this.repository.save(entity)
     return { id:saved.id, fullName:saved.fullName, location:saved.location, message:saved.message, publicCode:saved.publicCode,
       status:saved.status, expiresAt:saved.expiresAt, createdAt:saved.createdAt, updatedAt:saved.updatedAt, deleteToken }
