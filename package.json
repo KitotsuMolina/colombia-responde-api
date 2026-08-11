@@ -8,11 +8,14 @@
     "start:dev": "nest start --watch",
     "db:migrate": "node scripts/migrate.cjs",
     "db:verify": "node scripts/verify-database.cjs",
+    "r2:configure-cors": "node scripts/configure-r2-cors.cjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --max-warnings=0",
     "test": "node --test"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1107.0",
+    "@aws-sdk/s3-request-presigner": "^3.1107.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.1",
