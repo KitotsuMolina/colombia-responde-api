@@ -3,6 +3,7 @@ import { TerritorialLocation } from '../common/location.embedded'
 
 export type IncidentKind = 'help'|'damage'|'landslide'|'road'|'water'|'power'|'medical'|'shelter'|'aid'
 export type VerificationStatus = 'unverified'|'evidence'|'community'|'verified'|'official'
+export type IncidentAreaPoint = { latitude:number;longitude:number }
 
 @Entity('incidents')
 export class Incident {
@@ -13,6 +14,7 @@ export class Incident {
   @Column(() => TerritorialLocation, { prefix: false }) location: TerritorialLocation
   @Index({ spatial: true })
   @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326 }) coordinates: object
+  @Column({ type:'jsonb', nullable:true }) area?: IncidentAreaPoint[]
   @Column({ name: 'people_at_risk', type: 'int', nullable: true }) peopleAtRisk?: number
   @Column({ name: 'verification_status', type: 'varchar', length: 30, default: 'unverified' }) verificationStatus: VerificationStatus
   @Column({ name: 'confirmation_count', type: 'int', default: 0 }) confirmationCount: number

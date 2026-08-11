@@ -6,6 +6,7 @@ import { CreateIncidentDto } from './create-incident.dto'
 import { Incident } from './incident.entity'
 import { EvidenceService } from '../evidence/evidence.service'
 import { UpdateIncidentLocationDto } from '../admin/update-incident-location.dto'
+import { AdminCreateIncidentDto } from '../admin/admin-create-incident.dto'
 
 @Injectable()
 export class IncidentsService {
@@ -16,7 +17,7 @@ export class IncidentsService {
   }
   async findOne(id:string){const incident=await this.repository.findOneBy({id});if(!incident)throw new NotFoundException('Reporte no encontrado');return{...incident,evidence:await this.evidence.list(id)}}
   stream():Observable<MessageEvent>{return merge(this.events.asObservable(),interval(20000).pipe(map(()=>({data:{type:'heartbeat'}}))))}
-  async create(dto: CreateIncidentDto) {
+  async create(dto: CreateIncidentDto|AdminCreateIncidentDto) {
     const location={ ...dto.location, departmentCode:dto.location.departmentCode??'', municipalityCode:dto.location.municipalityCode??'' }
     const incident = this.repository.create({ ...dto, location, kind: dto.kind as Incident['kind'], coordinates: { type: 'Point', coordinates: [dto.longitude, dto.latitude] } })
     const saved=await this.repository.save(incident)
