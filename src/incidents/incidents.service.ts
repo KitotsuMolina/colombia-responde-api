@@ -4,6 +4,7 @@ import { Repository } from 'typeorm'
 import { CreateIncidentDto } from './create-incident.dto'
 import { Incident } from './incident.entity'
 import { EvidenceService } from '../evidence/evidence.service'
+import { UpdateIncidentLocationDto } from '../admin/update-incident-location.dto'
 
 @Injectable()
 export class IncidentsService {
@@ -17,4 +18,5 @@ export class IncidentsService {
     const incident = this.repository.create({ ...dto, location, kind: dto.kind as Incident['kind'], coordinates: { type: 'Point', coordinates: [dto.longitude, dto.latitude] } })
     return this.repository.save(incident)
   }
+  async updateLocation(id:string,dto:UpdateIncidentLocationDto){const incident=await this.repository.findOneBy({id});if(!incident)throw new NotFoundException('Reporte no encontrado');incident.location.locality=dto.locality;incident.coordinates={type:'Point',coordinates:[dto.longitude,dto.latitude]};return this.repository.save(incident)}
 }
