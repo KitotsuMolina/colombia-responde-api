@@ -11,6 +11,7 @@ export class PeopleController {
     return this.repository.find({ where: query ? { fullName: ILike(`%${query}%`) } : {}, order:{ createdAt:'DESC' }, take:100, select: { contactToken:false } })
   }
   @Post() create(@Body() dto: CreatePersonDto) {
-    return this.repository.save(this.repository.create({ ...dto, lastSeenAt:new Date(dto.lastSeenAt), status:'missing' }))
+    const location={ ...dto.location, departmentCode:dto.location.departmentCode??'', municipalityCode:dto.location.municipalityCode??'' }
+    return this.repository.save(this.repository.create({ ...dto, location, lastSeenAt:new Date(dto.lastSeenAt), status:'missing' }))
   }
 }
