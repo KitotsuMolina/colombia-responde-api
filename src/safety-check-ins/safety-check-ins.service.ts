@@ -11,7 +11,7 @@ export class SafetyCheckInsService {
   constructor(@InjectRepository(SafetyCheckIn) private readonly repository:Repository<SafetyCheckIn>) {}
   async search(query?:string) {
     const builder=this.repository.createQueryBuilder('checkin').where("checkin.status <> 'removed'").andWhere('checkin.expires_at > now()').orderBy('checkin.created_at','DESC').take(100)
-    if(query) builder.andWhere(new Brackets(qb=>qb.where('checkin.full_name ILIKE :query',{query:`%${query}%`}).orWhere('checkin.public_code = :code',{code:query.toUpperCase()})))
+    if(query) builder.andWhere(new Brackets(qb=>qb.where('checkin.full_name ILIKE :query',{query:`%${query}%`})))
     return builder.getMany()
   }
   async create(dto:CreateSafetyCheckInDto) {
