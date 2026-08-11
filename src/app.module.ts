@@ -9,6 +9,7 @@ import { RedisModule } from './redis/redis.module'
 import { SafetyCheckInsModule } from './safety-check-ins/safety-check-ins.module'
 import { EvidenceModule } from './evidence/evidence.module'
 import { AdminModule } from './admin/admin.module'
+import { CitizenActionsModule } from './citizen-actions/citizen-actions.module'
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AdminModule } from './admin/admin.module'
     SafetyCheckInsModule,
     EvidenceModule,
     AdminModule,
+    CitizenActionsModule,
   ],
   controllers: [HealthController],
 })
