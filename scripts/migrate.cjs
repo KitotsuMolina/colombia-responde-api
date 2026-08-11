@@ -10,14 +10,18 @@ if (!connectionString) {
 }
 
 async function migrate() {
-  const sql = await fs.readFile(path.join(__dirname, '..', 'migrations', '001_initial.sql'), 'utf8')
+  const migrationsDir = path.join(__dirname, '..', 'migrations')
+  const migrationFiles = (await fs.readdir(migrationsDir)).filter((file) => file.endsWith('.sql')).sort()
   const client = new Client({ connectionString })
   await client.connect()
   try {
-    await client.query('BEGIN')
-    await client.query(sql)
-    await client.query('COMMIT')
-    console.log('Migración 001_initial aplicada correctamente')
+    for (const file of migrationFiles) {
+      const sql = await fs.readFile(path.join(migrationsDir, file), 'utf8')
+      await client.query('BEGIN')
+      await client.query(sql)
+      await client.query('COMMIT')
+      console.log(`Migración ${file} aplicada correctamente`)
+    }
   } catch (error) {
     await client.query('ROLLBACK')
     throw error

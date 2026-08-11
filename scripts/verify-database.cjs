@@ -12,9 +12,9 @@ async function verify() {
   await client.connect()
   try {
     const extensions = await client.query("SELECT extname FROM pg_extension WHERE extname IN ('postgis','pg_trgm','unaccent') ORDER BY extname")
-    const tables = await client.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('incidents','missing_persons','resources') ORDER BY tablename")
+    const tables = await client.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('incidents','missing_persons','resources','safety_check_ins') ORDER BY tablename")
     const expectedExtensions = ['pg_trgm', 'postgis', 'unaccent']
-    const expectedTables = ['incidents', 'missing_persons', 'resources']
+    const expectedTables = ['incidents', 'missing_persons', 'resources', 'safety_check_ins']
     const actualExtensions = extensions.rows.map((row) => row.extname)
     const actualTables = tables.rows.map((row) => row.tablename)
     if (JSON.stringify(actualExtensions) !== JSON.stringify(expectedExtensions) || JSON.stringify(actualTables) !== JSON.stringify(expectedTables)) {
