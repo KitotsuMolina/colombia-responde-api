@@ -1,0 +1,2 @@
+import { Module } from '@nestjs/common';import { TypeOrmModule } from '@nestjs/typeorm';import { Incident } from '../incidents/incident.entity';import { EvidenceController } from './evidence.controller';import { IncidentEvidence } from './incident-evidence.entity';import { EvidenceService } from './evidence.service'
+@Module({imports:[TypeOrmModule.forFeature([IncidentEvidence,Incident])],controllers:[EvidenceController],providers:[EvidenceService],exports:[EvidenceService]}) export class EvidenceModule{}

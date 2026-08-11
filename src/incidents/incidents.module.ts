@@ -3,5 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { Incident } from './incident.entity'
 import { IncidentsController } from './incidents.controller'
 import { IncidentsService } from './incidents.service'
-@Module({ imports:[TypeOrmModule.forFeature([Incident])], controllers:[IncidentsController], providers:[IncidentsService] })
+import { EvidenceModule } from '../evidence/evidence.module'
+@Module({ imports:[TypeOrmModule.forFeature([Incident]),EvidenceModule], controllers:[IncidentsController], providers:[IncidentsService] })
 export class IncidentsModule {}

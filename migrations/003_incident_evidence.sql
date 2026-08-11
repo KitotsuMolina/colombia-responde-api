@@ -1,0 +1,2 @@
+CREATE TABLE IF NOT EXISTS incident_evidence (id uuid PRIMARY KEY DEFAULT gen_random_uuid(),incident_id uuid NOT NULL REFERENCES incidents(id) ON DELETE CASCADE,storage_key varchar(500) NOT NULL UNIQUE,mime_type varchar(50) NOT NULL,size_bytes integer NOT NULL,status varchar(20) NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','ready','rejected')),created_at timestamptz NOT NULL DEFAULT now());
+CREATE INDEX IF NOT EXISTS incident_evidence_incident_idx ON incident_evidence(incident_id,created_at);

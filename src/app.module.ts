@@ -7,6 +7,7 @@ import { PeopleModule } from './people/people.module'
 import { ResourcesModule } from './resources/resources.module'
 import { RedisModule } from './redis/redis.module'
 import { SafetyCheckInsModule } from './safety-check-ins/safety-check-ins.module'
+import { EvidenceModule } from './evidence/evidence.module'
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SafetyCheckInsModule } from './safety-check-ins/safety-check-ins.module
     ResourcesModule,
     RedisModule,
     SafetyCheckInsModule,
+    EvidenceModule,
   ],
   controllers: [HealthController],
 })
