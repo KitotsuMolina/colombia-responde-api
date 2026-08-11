@@ -5,6 +5,7 @@ import { HealthController } from './health.controller'
 import { IncidentsModule } from './incidents/incidents.module'
 import { PeopleModule } from './people/people.module'
 import { ResourcesModule } from './resources/resources.module'
+import { RedisModule } from './redis/redis.module'
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ResourcesModule } from './resources/resources.module'
     IncidentsModule,
     PeopleModule,
     ResourcesModule,
+    RedisModule,
   ],
   controllers: [HealthController],
 })

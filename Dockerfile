@@ -3,6 +3,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY nest-cli.json tsconfig.json ./
+COPY migrations ./migrations
+COPY scripts ./scripts
 COPY src ./src
 RUN npm run build && npm prune --omit=dev
 
@@ -13,6 +15,8 @@ RUN addgroup -S app && adduser -S app -G app
 COPY --from=build --chown=app:app /app/node_modules ./node_modules
 COPY --from=build --chown=app:app /app/dist ./dist
 COPY --from=build --chown=app:app /app/package.json ./package.json
+COPY --from=build --chown=app:app /app/migrations ./migrations
+COPY --from=build --chown=app:app /app/scripts ./scripts
 USER app
 EXPOSE 3000
 CMD ["node", "dist/main.js"]
