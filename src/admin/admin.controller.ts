@@ -1,0 +1,2 @@
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';import { CreateIncidentDto } from '../incidents/create-incident.dto';import { IncidentsService } from '../incidents/incidents.service';import { AdminGuard } from './admin.guard'
+@Controller('admin') @UseGuards(AdminGuard) export class AdminController {constructor(private readonly incidents:IncidentsService){}@Post('incidents') create(@Body() dto:CreateIncidentDto){return this.incidents.create(dto)}}

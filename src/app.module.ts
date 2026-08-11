@@ -8,6 +8,7 @@ import { ResourcesModule } from './resources/resources.module'
 import { RedisModule } from './redis/redis.module'
 import { SafetyCheckInsModule } from './safety-check-ins/safety-check-ins.module'
 import { EvidenceModule } from './evidence/evidence.module'
+import { AdminModule } from './admin/admin.module'
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { EvidenceModule } from './evidence/evidence.module'
     RedisModule,
     SafetyCheckInsModule,
     EvidenceModule,
+    AdminModule,
   ],
   controllers: [HealthController],
 })
