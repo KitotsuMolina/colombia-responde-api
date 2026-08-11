@@ -1,0 +1,4 @@
+import { timingSafeEqual } from 'node:crypto'
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+@Injectable() export class AdminGuard implements CanActivate {constructor(private readonly config:ConfigService){}canActivate(context:ExecutionContext){const request=context.switchToHttp().getRequest<{headers:{authorization?:string}}>(),provided=request.headers.authorization?.replace(/^Bearer\s+/i,''),expected=this.config.getOrThrow<string>('ADMIN_TOKEN');if(!provided)throw new UnauthorizedException('Token administrativo requerido');const left=Buffer.from(provided),right=Buffer.from(expected);if(left.length!==right.length||!timingSafeEqual(left,right))throw new UnauthorizedException('Token administrativo inválido');return true}}
