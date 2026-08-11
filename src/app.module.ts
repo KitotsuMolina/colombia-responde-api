@@ -6,6 +6,7 @@ import { IncidentsModule } from './incidents/incidents.module'
 import { PeopleModule } from './people/people.module'
 import { ResourcesModule } from './resources/resources.module'
 import { RedisModule } from './redis/redis.module'
+import { SafetyCheckInsModule } from './safety-check-ins/safety-check-ins.module'
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RedisModule } from './redis/redis.module'
     PeopleModule,
     ResourcesModule,
     RedisModule,
+    SafetyCheckInsModule,
   ],
   controllers: [HealthController],
 })
