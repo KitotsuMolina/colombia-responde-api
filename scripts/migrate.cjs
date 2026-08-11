@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises')
 const path = require('node:path')
 const { Client } = require('pg')
+require('dotenv').config()
 
 const connectionString = process.env.DATABASE_DIRECT_URL || process.env.DATABASE_URL
 if (!connectionString) {
