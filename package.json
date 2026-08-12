@@ -8,6 +8,7 @@
     "start:dev": "nest start --watch",
     "db:migrate": "node scripts/migrate.cjs",
     "db:verify": "node scripts/verify-database.cjs",
+    "db:resolve-territories": "node scripts/backfill-external-territories.cjs",
     "r2:configure-cors": "node scripts/configure-r2-cors.cjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --max-warnings=0",
