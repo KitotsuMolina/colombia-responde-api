@@ -13,7 +13,7 @@ export class IncidentsService {
   private readonly events = new Subject<MessageEvent>()
   constructor(@InjectRepository(Incident) private readonly repository: Repository<Incident>,private readonly evidence:EvidenceService) {}
   findAll(department?: string) {
-    return this.repository.find({ where: department ? { location: { departmentCode: department } } : {}, order: { createdAt: 'DESC' }, take: 200 })
+    return this.repository.find({ where: department ? { location: { departmentCode: department },status:'active' } : {status:'active'}, order: { updatedAt: 'DESC' }, take: 1000 })
   }
   async findOne(id:string){const incident=await this.repository.findOneBy({id});if(!incident)throw new NotFoundException('Reporte no encontrado');return{...incident,evidence:await this.evidence.list(id)}}
   stream():Observable<MessageEvent>{return merge(this.events.asObservable(),interval(20000).pipe(map(()=>({data:{type:'heartbeat'}}))))}

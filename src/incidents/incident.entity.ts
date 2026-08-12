@@ -15,6 +15,11 @@ export class Incident {
   @Index({ spatial: true })
   @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326 }) coordinates: object
   @Column({ type:'jsonb', nullable:true }) area?: IncidentAreaPoint[]
+  @Column({name:'source_name',type:'varchar',length:120,nullable:true}) sourceName?:string
+  @Column({name:'source_url',type:'text',nullable:true}) sourceUrl?:string
+  @Column({name:'external_id',type:'varchar',length:120,nullable:true}) externalId?:string
+  @Column({name:'source_updated_at',type:'timestamptz',nullable:true}) sourceUpdatedAt?:Date
+  @Column({name:'source_data',type:'jsonb',nullable:true}) sourceData?:Record<string,unknown>
   @Column({ name: 'people_at_risk', type: 'int', nullable: true }) peopleAtRisk?: number
   @Column({ name: 'verification_status', type: 'varchar', length: 30, default: 'unverified' }) verificationStatus: VerificationStatus
   @Column({ name: 'confirmation_count', type: 'int', default: 0 }) confirmationCount: number

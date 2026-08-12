@@ -1,0 +1,27 @@
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+import { Incident, IncidentKind } from './incident.entity'
+
+const SOURCE_NAME='Mapa de emergencia · Cali'
+const SOURCE_URL='https://mapa-emergencia.artefactofilms.workers.dev/'
+const SNAPSHOT_URL=`${SOURCE_URL}api/snapshot`
+const VALID_KINDS:Record<string,IncidentKind>={rescate:'help',albergue:'shelter',acopio:'aid',agua:'water',salud:'medical',cocina:'aid',psicologico:'medical',veterinario:'aid',info:'aid',otro:'help'}
+const statusLabel:Record<string,string>={urgente:'Urgente',necesita:'Necesita ayuda',cubierto:'Ayuda cubierta',cerrado:'Cerrado'}
+type SourcePoint={id:string;nombre?:string;tipo?:string;lat?:number;lng?:number;direccion?:string;barrio?:string;estado?:string;necesidades?:string[];contacto?:string;notas?:string;verificado?:number;actualizado?:number;confirmado?:number;confirma?:number;desmiente?:number;media?:Array<{url?:string;mime?:string;pie?:string;ts?:number}>;ubicado?:boolean;fresco?:boolean;voluntarios_hay?:number;voluntarios_faltan?:number}
+type Snapshot={generado:number;puntos:SourcePoint[]}
+
+@Injectable()
+export class ExternalMapSyncService implements OnModuleInit,OnModuleDestroy{
+  private readonly logger=new Logger(ExternalMapSyncService.name)
+  private timer?:NodeJS.Timeout
+  private running=false
+  constructor(@InjectRepository(Incident) private readonly repository:Repository<Incident>){}
+  onModuleInit(){void this.sync();this.timer=setInterval(()=>void this.sync(),60_000);this.timer.unref()}
+  onModuleDestroy(){if(this.timer)clearInterval(this.timer)}
+  private valid(point:SourcePoint){return point.id&&point.ubicado&&point.estado!=='descartado'&&point.estado!=='cerrado'&&Number.isFinite(point.lat)&&Number.isFinite(point.lng)&&Math.abs(point.lat!)<=90&&Math.abs(point.lng!)<=180&&!(point.lat===0&&point.lng===0)}
+  private description(point:SourcePoint){const sections=[`Estado informado por la fuente: ${statusLabel[point.estado||'']||point.estado||'Sin dato'}.`,point.necesidades?.length?`Necesidades reportadas: ${point.necesidades.join(', ')}.`:'',point.contacto?`Contacto publicado por la fuente: ${point.contacto}.`:'',point.notas?`Notas de campo: ${point.notas}`:'',`Confirmaciones comunitarias: ${point.confirma||0}. Desmentidos: ${point.desmiente||0}.`,`Información importada automáticamente desde ${SOURCE_NAME}. Confirma que siga vigente antes de desplazarte.`];return sections.filter(Boolean).join('\n\n').slice(0,2000)}
+  private cleanData(point:SourcePoint){const volunteers=(value?:number)=>typeof value==='number'&&value>=0&&value<=500?value:undefined;return{sourceState:point.estado,sourceType:point.tipo,needs:point.necesidades||[],contact:point.contacto||undefined,notes:point.notas||undefined,confirmations:point.confirma||0,denials:point.desmiente||0,sourceVerified:Boolean(point.verificado),fresh:Boolean(point.fresco),volunteersAvailable:volunteers(point.voluntarios_hay),volunteersNeeded:volunteers(point.voluntarios_faltan),media:(point.media||[]).slice(0,10).map(item=>({url:item.url?new URL(item.url,SOURCE_URL).toString():undefined,mime:item.mime,caption:item.pie,timestamp:item.ts}))}}
+  async sync(){if(this.running)return;this.running=true;try{const response=await fetch(SNAPSHOT_URL,{headers:{accept:'application/json','user-agent':'ColombiaResponde/0.1'}});if(!response.ok)throw new Error(`HTTP ${response.status}`);const snapshot=await response.json() as Snapshot;if(!Array.isArray(snapshot.puntos))throw new Error('Snapshot inválido');const points=snapshot.puntos.filter(point=>this.valid(point));for(const point of points){const updatedAt=new Date(point.actualizado||point.confirmado||snapshot.generado||Date.now()),location={departmentCode:'',departmentName:'Valle del Cauca',municipalityCode:'',municipalityName:'Santiago de Cali',locality:[point.direccion,point.barrio].filter(Boolean).join(' · ').slice(0,160)||'Ubicación informada por la fuente'},title=(point.nombre||point.direccion||'Reporte externo').slice(0,160),data=this.cleanData(point);await this.repository.createQueryBuilder().insert().into(Incident).values({kind:VALID_KINDS[point.tipo||'']||'help',title,description:this.description(point),location,coordinates:{type:'Point',coordinates:[point.lng!,point.lat!]},verificationStatus:'unverified',confirmationCount:point.confirma||0,status:'active',sourceName:SOURCE_NAME,sourceUrl:SOURCE_URL,externalId:point.id,sourceUpdatedAt:updatedAt,sourceData:data}).orUpdate(['kind','title','description','department_code','department_name','municipality_code','municipality_name','locality','coordinates','confirmation_count','status','source_url','source_updated_at','source_data'],['source_name','external_id'],{skipUpdateIfNoValuesChanged:true}).execute()}
+    const ids=points.map(point=>point.id);if(ids.length)await this.repository.createQueryBuilder().update(Incident).set({status:'archived'}).where('source_name = :sourceName',{sourceName:SOURCE_NAME}).andWhere('external_id NOT IN (:...ids)',{ids}).execute();this.logger.log(`Sincronizados ${points.length} puntos externos`)}catch(error){this.logger.warn(`No fue posible sincronizar la fuente externa: ${error instanceof Error?error.message:String(error)}`)}finally{this.running=false}}
+}
