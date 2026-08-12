@@ -13,7 +13,7 @@ export class IncidentsService {
   private readonly events = new Subject<MessageEvent>()
   constructor(@InjectRepository(Incident) private readonly repository: Repository<Incident>,private readonly evidence:EvidenceService) {}
   findAll(department?: string) {
-    return this.repository.find({ where: department ? { location: { departmentCode: department },status:'active' } : {status:'active'}, order: { updatedAt: 'DESC' }, take: 1000 })
+    return this.repository.find({ where: department ? { location: { departmentCode: department },status:'active' } : {status:'active'}, order: { createdAt: 'DESC' }, take: 1000 })
   }
   private async sourceLog(incident:Incident){if(incident.sourceName!=='Mapa de emergencia · Cali'||!incident.externalId)return[];try{const response=await fetch(`https://mapa-emergencia.artefactofilms.workers.dev/api/puntos/${encodeURIComponent(incident.externalId)}/bitacora`,{headers:{accept:'application/json','user-agent':'ColombiaResponde/0.1'},signal:AbortSignal.timeout(4_000)});if(!response.ok)return[];const payload=await response.json() as {bitacora?:Array<{texto?:string;autor?:string;ts?:number}>};return(payload.bitacora||[]).slice(0,100).filter(item=>item.texto&&Number.isFinite(item.ts)).map(item=>({text:item.texto!.slice(0,500),author:item.autor?.slice(0,80)||undefined,timestamp:item.ts!}))}catch{return[]}}
   async findOne(id:string){const incident=await this.repository.findOneBy({id});if(!incident)throw new NotFoundException('Reporte no encontrado');const[evidence,sourceLog]=await Promise.all([this.evidence.list(id),this.sourceLog(incident)]);return{...incident,evidence,sourceLog}}
